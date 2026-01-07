@@ -1,10 +1,29 @@
 from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime
-from passlib.context import CryptContext
+import hashlib
+import secrets
 
-# Configuración de bcrypt para hashear contraseñas
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Alternativa sin bcrypt - usando hashlib (incluido en Python)
+class PasswordHasher:
+    @staticmethod
+    def hash(password: str) -> str:
+        """Hashea una contraseña usando PBKDF2-SHA256"""
+        salt = secrets.token_hex(32)
+        pwd_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 100000)
+        return f"{salt}${pwd_hash.hex()}"
+    
+    @staticmethod
+    def verify(password: str, hashed: str) -> bool:
+        """Verifica una contraseña contra su hash"""
+        try:
+            salt, pwd_hash = hashed.split('$')
+            new_hash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('utf-8'), 100000)
+            return pwd_hash == new_hash.hex()
+        except:
+            return False
+
+pwd_context = PasswordHasher()
 
 # 1. TABLA DE USUARIOS
 class User(SQLModel, table=True):
@@ -40,8 +59,8 @@ class PersonalRecord(SQLModel, table=True):
 # 3. MODELOS DE APOYO (No crean tablas, solo validan datos)
 class UserAuth(SQLModel):
     """Para el Login y Registro"""
-    username: str
-    password: str
+    username: str = Field(min_length=3, max_length=50)
+    password: str = Field(min_length=6, max_length=128)
 
 class SegmentResult(SQLModel):
     """Para la respuesta JSON tras analizar un archivo"""

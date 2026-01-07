@@ -23,7 +23,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Contraseña</label>
-                        <input type="password" id="login-pass" class="form-control" placeholder="••••••••">
+                        <input type="password" id="login-pass" class="form-control" placeholder="••••••••" maxlength="72">
                     </div>
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-primary" onclick="handleLogin()">Iniciar Sesión</button>
@@ -47,15 +47,17 @@
                     
                     <div class="mb-3">
                         <label class="form-label">Usuario</label>
-                        <input type="text" id="register-user" class="form-control" placeholder="Elige tu nombre de usuario">
+                        <input type="text" id="register-user" class="form-control" placeholder="Elige tu nombre de usuario" minlength="3">
+                        <small class="text-white-50">Mínimo 3 caracteres</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Contraseña</label>
-                        <input type="password" id="register-pass" class="form-control" placeholder="••••••••">
+                        <input type="password" id="register-pass" class="form-control" placeholder="••••••••" minlength="6" maxlength="72">
+                        <small class="text-white-50">Entre 6 y 72 caracteres</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Confirmar Contraseña</label>
-                        <input type="password" id="register-pass-confirm" class="form-control" placeholder="••••••••">
+                        <input type="password" id="register-pass-confirm" class="form-control" placeholder="••••••••" minlength="6" maxlength="72">
                     </div>
                     <div class="d-grid gap-2">
                         <button type="button" class="btn btn-primary" onclick="handleRegister()">Crear Cuenta</button>

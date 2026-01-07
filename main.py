@@ -1,10 +1,11 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
 from database import create_db_and_tables, get_session
 from models import PersonalRecord, User, UserAuth
+from pydantic import ValidationError
 import engine
 import os
 
@@ -25,34 +26,86 @@ async def read_index():
 # --- RUTAS DE AUTENTICACIÓN ---
 
 @app.post("/register")
-def register(auth: UserAuth, session: Session = Depends(get_session)):
+async def register(request: Request, session: Session = Depends(get_session)):
+    try:
+        # Leer y parsear el body
+        body = await request.json()
+        print(f"\n📦 Datos recibidos:")
+        print(f"   Username: '{body.get('username')}' (len={len(body.get('username', ''))})")
+        print(f"   Password length: {len(body.get('password', ''))}")
+        
+        # Validar con Pydantic
+        auth = UserAuth(**body)
+        
+    except ValidationError as e:
+        print(f"❌ Error de validación: {e}")
+        # Extraer el mensaje de error más legible
+        errors = e.errors()
+        if errors:
+            first_error = errors[0]
+            field = first_error.get('loc', [''])[0]
+            msg = first_error.get('msg', 'Error de validación')
+            
+            if 'password' in str(field).lower() and 'longer' in msg.lower():
+                raise HTTPException(
+                    status_code=400,
+                    detail="La contraseña no puede tener más de 72 caracteres"
+                )
+            elif 'password' in str(field).lower() and 'shorter' in msg.lower():
+                raise HTTPException(
+                    status_code=400,
+                    detail="La contraseña debe tener al menos 6 caracteres"
+                )
+            else:
+                raise HTTPException(status_code=400, detail=msg)
+        raise HTTPException(status_code=400, detail="Error de validación")
+    except Exception as e:
+        print(f"❌ Error general: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    print(f"📝 Intento de registro - Usuario: {auth.username}")
+    
     # Verificar si el usuario ya existe
     statement = select(User).where(User.username == auth.username)
     existing_user = session.exec(statement).first()
     if existing_user:
+        print(f"❌ Usuario '{auth.username}' ya existe")
         raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
     
-    # Crear usuario con contraseña hasheada
-    new_user = User(username=auth.username)
-    new_user.set_password(auth.password)  # Hashea automáticamente
-    
-    session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
-    return {"id": new_user.id, "username": new_user.username}
+    try:
+        # Crear usuario con contraseña hasheada
+        new_user = User(username=auth.username)
+        new_user.set_password(auth.password)  # Hashea automáticamente
+        
+        session.add(new_user)
+        session.commit()
+        session.refresh(new_user)
+        
+        print(f"✅ Usuario '{auth.username}' creado con ID: {new_user.id}")
+        return {"id": new_user.id, "username": new_user.username}
+        
+    except Exception as e:
+        print(f"❌ Error creando usuario: {e}")
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al crear usuario: {str(e)}")
 
 @app.post("/login")
 def login(auth: UserAuth, session: Session = Depends(get_session)):
+    print(f"🔐 Intento de login - Usuario: {auth.username}")
+    
     # Buscar usuario por nombre
     user = session.exec(select(User).where(User.username == auth.username)).first()
     
     if not user:
+        print(f"❌ Usuario '{auth.username}' no encontrado")
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
     
     # Verificar contraseña hasheada
     if not user.verify_password(auth.password):
+        print(f"❌ Contraseña incorrecta para usuario '{auth.username}'")
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
     
+    print(f"✅ Login exitoso - Usuario: {auth.username} (ID: {user.id})")
     return {"id": user.id, "username": user.username}
 
 # --- RUTAS DE DATOS (MODIFICADAS CON USER_ID) ---

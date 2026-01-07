@@ -34,30 +34,51 @@ window.handleLogin = async function() {
     }
 
     try {
+        console.log("Enviando datos de login:", { username, password: "***" });
+        
         const response = await fetch('/login', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                username: username, 
+                password: password 
+            })
         });
 
-        const data = await response.json();
+        console.log("Respuesta del servidor:", response.status, response.statusText);
 
-        if (response.ok) {
-            currentUserId = data.id;
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('register-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('user-welcome').innerText = `Hola, ${data.username} 🏃‍♂️`;
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error del servidor:", errorText);
             
-            limpiarInterfaz();
-            showTab('new');
-            setTimeout(configurarFileInput, 200);
-        } else {
-            alert(data.detail || "Error al iniciar sesión");
+            try {
+                const errorData = JSON.parse(errorText);
+                alert(errorData.detail || "Error al iniciar sesión");
+            } catch {
+                alert(`Error del servidor: ${response.status} - ${errorText}`);
+            }
+            return;
         }
+
+        const data = await response.json();
+        console.log("Login exitoso:", data);
+
+        currentUserId = data.id;
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('register-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-welcome').innerText = `Hola, ${data.username} 🏃‍♂️`;
+        
+        limpiarInterfaz();
+        showTab('new');
+        setTimeout(configurarFileInput, 200);
+        
     } catch (error) {
-        console.error("Error de conexión:", error);
-        alert("No se pudo conectar con el servidor.");
+        console.error("Error completo:", error);
+        alert("No se pudo conectar con el servidor. Verifica que esté corriendo en http://localhost:8000");
     }
 };
 
@@ -81,30 +102,56 @@ window.handleRegister = async function() {
         return;
     }
 
+    if (password.length > 72) {
+        alert("La contraseña no puede tener más de 72 caracteres.");
+        return;
+    }
+
     if (password !== passwordConfirm) {
         alert("Las contraseñas no coinciden. Por favor, verifica que sean iguales.");
         return;
     }
 
     try {
+        console.log("Enviando datos de registro:", { username, password: "***" });
+        
         const response = await fetch('/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ 
+                username: username, 
+                password: password 
+            })
         });
 
-        const data = await response.json();
+        console.log("Respuesta del servidor:", response.status, response.statusText);
 
-        if (response.ok) {
-            alert("¡Cuenta creada correctamente! Ahora puedes iniciar sesión.");
-            showLoginScreen();
-            document.getElementById('login-user').value = username;
-        } else {
-            alert(data.detail || "Error al crear la cuenta");
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Error del servidor:", errorText);
+            
+            try {
+                const errorData = JSON.parse(errorText);
+                alert(errorData.detail || "Error al crear la cuenta");
+            } catch {
+                alert(`Error del servidor: ${response.status} - ${errorText}`);
+            }
+            return;
         }
+
+        const data = await response.json();
+        console.log("Usuario creado:", data);
+
+        alert("¡Cuenta creada correctamente! Ahora puedes iniciar sesión.");
+        showLoginScreen();
+        document.getElementById('login-user').value = username;
+        
     } catch (error) {
-        console.error("Error de conexión:", error);
-        alert("No se pudo conectar con el servidor.");
+        console.error("Error completo:", error);
+        alert("No se pudo conectar con el servidor. Verifica que esté corriendo en http://localhost:8000");
     }
 };
 

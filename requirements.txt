@@ -4,4 +4,3 @@ python-multipart
 sqlmodel
 lxml
 haversine
-passlib[bcrypt]
