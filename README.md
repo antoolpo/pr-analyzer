@@ -256,33 +256,19 @@ Si encuentras un bug, por favor abre un [Issue](https://github.com/antoolpo/pr-a
 
 ## 📝 Roadmap
 
-### Próximas funcionalidades
-- [ ] Soporte para archivos GPX y FIT
-- [ ] Análisis de ritmos por kilómetro
-- [ ] Comparación de actividades
-- [ ] Gráfica de progresión temporal
-- [ ] Exportar récords a PDF
-- [ ] API pública con autenticación JWT
-- [ ] Integración directa con Strava API
-- [ ] Detección de zonas de frecuencia cardíaca
-- [ ] Análisis de cadencia
-- [ ] Sistema de logros y medallas
-
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ## 👨‍💻 Autor
 
-**Antonio López** - [GitHub](https://github.com/antoolpo)
+**Antonio Olmedo** - [GitHub](https://github.com/antoolpo)
 
 ## 🙏 Agradecimientos
 
 - Garmin y Strava por el formato TCX
 - Comunidad de FastAPI
 - Todos los runners que prueban la app
-
-## 📞 Contacto
 
 ¿Preguntas? ¿Sugerencias? Abre un Issue o contáctame directamente.
 
