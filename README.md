@@ -254,22 +254,6 @@ Si encuentras un bug, por favor abre un [Issue](https://github.com/antoolpo/pr-a
 - Comportamiento esperado vs actual
 - Screenshots si es posible
 
-<<<<<<< HEAD
-### Próximas funcionalidades
-- [ ] Soporte para archivos GPX y FIT
-- [ ] Análisis de ritmos por kilómetro
-- [ ] Comparación de actividades
-- [ ] Gráfica de progresión temporal
-- [ ] Exportar récords a PDF
-- [ ] API pública con autenticación JWT
-- [ ] Integración directa con Strava API
-- [ ] Detección de zonas de frecuencia cardíaca
-- [ ] Análisis de cadencia
-- [ ] Sistema de logros y medallas
-=======
-## 📝 Roadmap
->>>>>>> 37e0ef7843a245fd03e51330519a2f0921f9703d
-
 ## 📄 Licencia
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
@@ -291,3 +275,4 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para
 ⭐ Si te gusta el proyecto, ¡dale una estrella en GitHub!
 
 **Happy Running! 🏃‍♂️💨**
+
