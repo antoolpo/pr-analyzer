@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PR Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- PANTALLA DE LOGIN -->
+    <div id="login-screen" class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card-glass p-4">
+                    <h2 class="text-center mb-4 fw-bold">PR Analyzer</h2>
+                    <p class="text-center text-white-50 mb-4">Analiza tus récords personales</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" id="login-user" class="form-control" placeholder="Tu nombre de usuario">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="login-pass" class="form-control" placeholder="••••••••">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="handleLogin()">Iniciar Sesión</button>
+                    </div>
+                    <div class="text-center mt-4">
+                        <p class="text-white-50 small mb-2">¿No tienes cuenta?</p>
+                        <button type="button" class="btn btn-link text-info" onclick="showRegisterScreen()">Crear una cuenta nueva</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANTALLA DE REGISTRO -->
+    <div id="register-screen" class="container mt-5" style="display:none;">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card-glass p-4">
+                    <h2 class="text-center mb-4 fw-bold">Crear Cuenta</h2>
+                    <p class="text-center text-white-50 mb-4">Únete a PR Analyzer</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" id="register-user" class="form-control" placeholder="Elige tu nombre de usuario">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="register-pass" class="form-control" placeholder="••••••••">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirmar Contraseña</label>
+                        <input type="password" id="register-pass-confirm" class="form-control" placeholder="••••••••">
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="handleRegister()">Crear Cuenta</button>
+                        <button type="button" class="btn btn-outline-light" onclick="showLoginScreen()">Volver al Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL -->
+    <div id="main-app" class="container main-content" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 id="user-welcome" class="text-info mb-0"></h4>
+            <button class="btn btn-sm btn-outline-danger" onclick="logout()">Cerrar Sesión</button>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3 mb-5">
+            <button class="btn btn-outline-light rounded-pill px-4 btn-nav" onclick="showTab('records')">
+                Mis Récords
+            </button>
+            <button class="btn btn-light rounded-pill px-4 btn-nav active" id="btn-new-tab" onclick="showTab('new')">
+                Nueva Sesión
+            </button>
+            <button class="btn btn-outline-light rounded-pill px-4 btn-nav" onclick="showTab('predictions')">
+                Predicciones
+            </button>
+        </div>
+
+        <div id="tab-records" class="tab-content" style="display:none;">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Mis Récords Personales</h2>
+                <p class="text-light opacity-75">Tus mejores tiempos detectados automáticamente</p>
+            </div>
+            <div id="records-list" class="mx-auto records-container"></div>
+        </div>
+
+        <div id="tab-predictions" class="tab-content" style="display:none;">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Predicciones de Marca</h2>
+                <p class="text-light opacity-75">Estimación de tus posibles tiempos en otras distancias</p>
+            </div>
+            <div id="predictions-content" class="mx-auto" style="max-width: 900px;">
+                <div class="card-glass p-4 mb-4">
+                    <h5 class="text-info mb-3">📊 Cómo funcionan las predicciones</h5>
+                    <p class="small opacity-75 mb-0">
+                        Utilizamos fórmulas de rendimiento deportivo (Riegel, Daniels) para estimar tus tiempos en diferentes distancias basándonos en tus récords actuales. 
+                        Estas predicciones son orientativas y pueden variar según tu entrenamiento específico para cada distancia.
+                    </p>
+                </div>
+                <div id="predictions-list"></div>
+            </div>
+        </div>
+
+        <div id="tab-new" class="tab-content">
+            <div class="text-center mb-4">
+                <label for="tcx-file" class="btn btn-primary rounded-pill px-5 shadow">Añadir Sesión</label>
+                <input type="file" id="tcx-file" style="display:none;" accept=".tcx">
+            </div>
+
+            <div id="results-area" style="display:none;">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3"><div class="card-glass text-center"><small class="opacity-50">TIEMPO</small><h3 id="stat-time" class="mb-0">--</h3></div></div>
+                    <div class="col-md-3"><div class="card-glass text-center"><small class="opacity-50">DISTANCIA</small><h3 id="stat-dist" class="mb-0">--</h3></div></div>
+                    <div class="col-md-3"><div class="card-glass text-center"><small class="opacity-50">RITMO</small><h3 id="stat-speed" class="mb-0">--</h3></div></div>
+                    <div class="col-md-3"><div class="card-glass text-center"><small class="opacity-50">DESNIVEL</small><h3 id="stat-ele" class="mb-0">--</h3></div></div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-lg-8">
+                        <div class="card-glass p-0 overflow-hidden mb-4"><div id="map" style="height: 450px;"></div></div>
+                        <div class="card-glass mb-4">
+                            <h6 class="text-info mb-3">ANÁLISIS DE ESFUERZO Y ALTITUD</h6>
+                            <canvas id="combinedChart" style="height: 300px !important;"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card-glass h-100">
+                            <h5 class="mb-4">⏱️ Récords en esta Sesión</h5>
+                            <div id="session-records"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

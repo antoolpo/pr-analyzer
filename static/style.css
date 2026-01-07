@@ -1,0 +1,301 @@
+body {
+    background: linear-gradient(to bottom, #3F5E96, #141E30);
+    min-height: 100vh;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Animación para récords personales nuevos */
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(255, 215, 0, 1), 0 0 80px rgba(255, 215, 0, 0.6);
+        transform: scale(1.02);
+    }
+}
+
+/* Configuración General */
+.main-content {
+    max-width: 1100px;
+    padding-top: 30px;
+}
+
+/* Botones de Navegación */
+.btn-nav {
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: all 0.3s;
+}
+
+.btn-nav.active {
+    background-color: white !important;
+    color: #1e3c72 !important;
+    font-weight: bold;
+}
+
+/* Tarjetas Estilo Glassmorphism */
+.card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 20px;
+}
+
+/* Mapa y Tablas */
+#map {
+    height: 400px;
+    width: 100%;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.table-dark {
+    --bs-table-bg: transparent;
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Gráficas */
+canvas {
+    width: 100% !important;
+    height: 180px !important;
+}
+
+/* Contenedor de Récords */
+.records-container {
+    max-width: 700px;
+}
+
+.navbar {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.navbar-brand, .nav-link {
+    color: #ffffff !important;
+}
+
+.nav-link.active {
+    font-weight: bold;
+    border-bottom: 2px solid #007bff;
+}
+
+.main-content {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Estilo para el contenedor de Récords */
+.records-container {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    padding: 2.5rem;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.records-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.records-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.records-header .crown {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 3rem;
+    color: gold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+}
+
+/* Nuevas tarjetas de récords modernas */
+.record-card-modern {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.record-card-modern:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 8px 30px rgba(0, 188, 212, 0.3);
+    border-color: rgba(0, 188, 212, 0.5);
+}
+
+.record-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.record-badge {
+    background: linear-gradient(135deg, #00d2ff 0%, #3a7bd5 100%);
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 0.5rem 1.2rem;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.record-time {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+    letter-spacing: 1px;
+}
+
+.record-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 0.8rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(3px);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1rem;
+    color: #fff;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.form-upload {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.form-label {
+    color: #fff;
+}
+
+.form-control, .btn {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    color: #fff;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.alert {
+    background-color: rgba(0, 123, 255, 0.2);
+    border-color: rgba(0, 123, 255, 0.3);
+    color: #cce5ff;
+}
+
+.alert-success { 
+    background-color: rgba(40, 167, 69, 0.2); 
+    border-color: rgba(40, 167, 69, 0.3); 
+    color: #d4edda; 
+}
+
+.alert-warning { 
+    background-color: rgba(255, 193, 7, 0.2); 
+    border-color: rgba(255, 193, 7, 0.3); 
+    color: #fff3cd; 
+}
+
+.alert-danger { 
+    background-color: rgba(220, 53, 69, 0.2); 
+    border-color: rgba(220, 53, 69, 0.3); 
+    color: #f8d7da; 
+}
+
+/* Para la sección de nueva sesión */
+#map {
+    height: 400px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-bottom: 2rem;
+}
+
+.chart-container {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    height: 300px;
+}

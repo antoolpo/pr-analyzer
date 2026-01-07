@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  pr_analyzer:
+    build: .
+    container_name: pr_analyzer_app
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mapeamos la carpeta data del contenedor a la carpeta local data
+      # Así, si borras el contenedor, la base de datos (tus récords) persiste.
+      - ./data:/app/data
+    restart: always
