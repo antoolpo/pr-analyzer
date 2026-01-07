@@ -6,8 +6,10 @@ import math
 
 # Las distancias que queremos analizar
 OBJETIVOS = {
+    "50m": 50,
     "100m": 100,
     "200m": 200,
+    "400m": 400,
     "500m": 500,
     "1km": 1000,
     "2km": 2000,
@@ -182,7 +184,7 @@ def obtener_resumen_completo(points, resultados_segmentos):
             "velocidad": f"{(distancia_total / (total_seg/3600)):.1f} km/h" if total_seg > 0 else "0.0 km/h",
             "desnivel": f"{int(desnivel_total)} m"
         },
-        "records_sesion": resultados_segmentos, # Aquí van los récords de esta subida
+        "records_sesion": resultados_segmentos,
         "path": [[p.lat, p.lon] for p in points],
         "hrs": [p.hr for p in points if p.hr is not None],
         "altitudes": [round(p.ele, 1) for p in points]

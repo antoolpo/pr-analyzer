@@ -412,7 +412,7 @@ function renderizarRecordsSesion(records) {
 }
 
 // ==========================================
-// PREDICCIONES - TARJETAS EN GRID
+// PREDICCIONES - VERSIÓN CORREGIDA
 // ==========================================
 
 async function loadPredictions() {
@@ -426,39 +426,99 @@ async function loadPredictions() {
             return;
         }
         
-        const todasLasDistancias = ['100m', '200m', '500m', '1km', '2km', '5km', '10km', '15km', '21km', '42km'];
+        // INCLUIR 50m Y 400m
+        const todasLasDistancias = ['50m', '100m', '200m', '400m', '500m', '1km', '2km', '5km', '10km', '15km', '21km', '42km'];
         const distanciasEnMetros = {
-            '100m': 100, '200m': 200, '500m': 500, '1km': 1000, 
-            '2km': 2000, '5km': 5000, '10km': 10000, '15km': 15000, 
-            '21km': 21097, '42km': 42195
+            '50m': 50, 
+            '100m': 100, 
+            '200m': 200, 
+            '400m': 400, 
+            '500m': 500, 
+            '1km': 1000, 
+            '2km': 2000, 
+            '5km': 5000, 
+            '10km': 10000, 
+            '15km': 15000, 
+            '21km': 21097, 
+            '42km': 42195
         };
         
-        // PASO 1: Calcular TODAS las predicciones y promedios
+        console.log("Récords disponibles:", records);
+        
+        // PASO 1: Calcular predicciones con validación mejorada
         const prediccionesPromedio = {};
         
         todasLasDistancias.forEach(distanciaObjetivo => {
             const predicciones = [];
+            const distMetrosObjetivo = distanciasEnMetros[distanciaObjetivo];
+            
+            if (!distMetrosObjetivo) {
+                console.warn(`Distancia objetivo no encontrada: ${distanciaObjetivo}`);
+                return;
+            }
             
             records.forEach(record => {
-                const distMetrosObjetivo = distanciasEnMetros[distanciaObjetivo];
                 const distMetrosBase = distanciasEnMetros[record.distancia_nombre];
-                const tiempoPredicho = record.tiempo_segundos * Math.pow(distMetrosObjetivo / distMetrosBase, 1.06);
                 
-                predicciones.push(tiempoPredicho);
+                // Validaciones estrictas
+                if (!distMetrosBase) {
+                    console.warn(`Distancia base no encontrada: ${record.distancia_nombre}`);
+                    return;
+                }
+                
+                if (!record.tiempo_segundos || record.tiempo_segundos <= 0) {
+                    console.warn(`Tiempo inválido para ${record.distancia_nombre}:`, record.tiempo_segundos);
+                    return;
+                }
+                
+                // Fórmula de Riegel
+                const ratio = distMetrosObjetivo / distMetrosBase;
+                const exponente = 1.06;
+                const tiempoPredicho = record.tiempo_segundos * Math.pow(ratio, exponente);
+                
+                // Validar resultado
+                if (Number.isFinite(tiempoPredicho) && tiempoPredicho > 0) {
+                    predicciones.push(tiempoPredicho);
+                    console.log(`Predicción ${record.distancia_nombre} → ${distanciaObjetivo}: ${tiempoPredicho.toFixed(2)}s`);
+                } else {
+                    console.warn(`Predicción inválida: ${record.distancia_nombre} → ${distanciaObjetivo}`, tiempoPredicho);
+                }
             });
             
-            const promedio = predicciones.reduce((sum, t) => sum + t, 0) / predicciones.length;
-            prediccionesPromedio[distanciaObjetivo] = promedio;
+            // Calcular promedio solo si hay predicciones válidas
+            if (predicciones.length > 0) {
+                const promedio = predicciones.reduce((sum, t) => sum + t, 0) / predicciones.length;
+                
+                if (Number.isFinite(promedio) && promedio > 0) {
+                    prediccionesPromedio[distanciaObjetivo] = promedio;
+                    console.log(`✓ Promedio ${distanciaObjetivo}: ${promedio.toFixed(2)}s (de ${predicciones.length} predicciones)`);
+                }
+            } else {
+                console.warn(`No hay predicciones válidas para ${distanciaObjetivo}`);
+            }
         });
         
-        // PASO 2: Generar tarjetas en grid de 3 columnas
+        console.log("Predicciones finales:", prediccionesPromedio);
+        
+        // PASO 2: Generar tarjetas
         let html = '<div class="row g-4">';
+        let tarjetasGeneradas = 0;
         
         todasLasDistancias.forEach((distancia) => {
-            const tieneRecord = records.find(r => r.distancia_nombre === distancia);
             const promedio = prediccionesPromedio[distancia];
             
-            // Formatear tiempo promedio
+            // Verificación estricta
+            if (!promedio || !Number.isFinite(promedio) || promedio <= 0) {
+                console.log(`Saltando ${distancia} - promedio inválido:`, promedio);
+                return;
+            }
+            
+            tarjetasGeneradas++;
+            
+            const tieneRecord = records.find(r => r.distancia_nombre === distancia);
+            const distMetros = distanciasEnMetros[distancia];
+            
+            // Formatear tiempo
             const h = Math.floor(promedio / 3600);
             const m = Math.floor((promedio % 3600) / 60);
             const s = Math.floor(promedio % 60);
@@ -472,12 +532,11 @@ async function loadPredictions() {
                 tiempoFormateado = `0:${s.toString().padStart(2,'0')}`;
             }
             
-            // Calcular ritmo
-            const ritmoMin = promedio / (distanciasEnMetros[distancia] / 1000) / 60;
+            // Calcular ritmo con validación
+            const ritmoMin = promedio / (distMetros / 1000) / 60;
             const ritmoM = Math.floor(ritmoMin);
             const ritmoS = Math.floor((ritmoMin - ritmoM) * 60);
             
-            // Determinar estilo según si tiene récord
             let cardClass = 'card-glass';
             let badge = '';
             let comparacionHTML = '';
@@ -489,7 +548,7 @@ async function loadPredictions() {
                 cardClass += ' border border-success';
                 badge = '<span class="badge bg-success">✓ Récord actual</span>';
                 
-                // Formatear récord actual
+                // Formatear récord
                 const hReal = Math.floor(tiempoReal / 3600);
                 const mReal = Math.floor((tiempoReal % 3600) / 60);
                 const sReal = Math.floor(tiempoReal % 60);
@@ -503,7 +562,6 @@ async function loadPredictions() {
                     tiempoRealFormateado = `0:${sReal.toString().padStart(2,'0')}`;
                 }
                 
-                // INVERTIDO: Menor tiempo = Mejor
                 if (Math.abs(diferencia) < 5) {
                     comparacionHTML = `
                         <div class="mt-3 pt-3 border-top border-success">
@@ -512,7 +570,6 @@ async function loadPredictions() {
                         </div>
                     `;
                 } else if (diferencia < 0) {
-                    // Tiempo real MENOR que predicción = VAS MÁS RÁPIDO (BUENO)
                     comparacionHTML = `
                         <div class="mt-3 pt-3 border-top border-warning">
                             <div class="small text-warning fw-bold mb-1">🏆 Tu récord: ${tiempoRealFormateado}</div>
@@ -520,7 +577,6 @@ async function loadPredictions() {
                         </div>
                     `;
                 } else {
-                    // Tiempo real MAYOR que predicción = Puedes mejorar
                     comparacionHTML = `
                         <div class="mt-3 pt-3 border-top border-info">
                             <div class="small text-info fw-bold mb-1">🏆 Tu récord: ${tiempoRealFormateado}</div>
@@ -554,7 +610,14 @@ async function loadPredictions() {
         });
         
         html += '</div>';
-        predictionsList.innerHTML = html;
+        
+        if (tarjetasGeneradas === 0) {
+            predictionsList.innerHTML = '<p class="text-center opacity-50 mt-4">No hay suficientes datos para generar predicciones</p>';
+        } else {
+            predictionsList.innerHTML = html;
+        }
+        
+        console.log(`✅ Tarjetas generadas: ${tarjetasGeneradas}`);
         
     } catch (e) {
         console.error("Error cargando predicciones:", e);

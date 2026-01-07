@@ -32,7 +32,10 @@ def register(auth: UserAuth, session: Session = Depends(get_session)):
     if existing_user:
         raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
     
-    new_user = User(username=auth.username, password=auth.password)
+    # Crear usuario con contraseña hasheada
+    new_user = User(username=auth.username)
+    new_user.set_password(auth.password)  # Hashea automáticamente
+    
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
@@ -40,13 +43,16 @@ def register(auth: UserAuth, session: Session = Depends(get_session)):
 
 @app.post("/login")
 def login(auth: UserAuth, session: Session = Depends(get_session)):
-    user = session.exec(select(User).where(
-        User.username == auth.username, 
-        User.password == auth.password
-    )).first()
+    # Buscar usuario por nombre
+    user = session.exec(select(User).where(User.username == auth.username)).first()
     
     if not user:
         raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
+    
+    # Verificar contraseña hasheada
+    if not user.verify_password(auth.password):
+        raise HTTPException(status_code=401, detail="Usuario o contraseña incorrectos")
+    
     return {"id": user.id, "username": user.username}
 
 # --- RUTAS DE DATOS (MODIFICADAS CON USER_ID) ---
